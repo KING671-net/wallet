@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WHIDER WebsWallet</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        :root {
+            --primary: #6a11cb;
+            --secondary: #2575fc;
+            --dark: #0f0f23;
+            --darker: #0a0a18;
+            --card-bg: rgba(30, 30, 50, 0.95);
+            --card-hover: rgba(40, 40, 70, 0.95);
+            --text: #ffffff;
+            --text-secondary: #a0a0c0;
+            --positive: #00d395;
+            --negative: #ff3b5c;
+            --neutral: #ffcc00;
+        }
+        
+        body {
+            background: linear-gradient(135deg, var(--dark) 0%, var(--darker) 100%);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-x: hidden;
+        }
+        
+        .wallet-container {
+            width: 100%;
+            max-width: 420px;
+            background: var(--card-bg);
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            animation: fadeIn 0.8s ease-out;
+            transition: transform 0.3s ease;
+        }
+        
+        .wallet-container:hover {
+            transform: translateY(-5px);
+        }
+        
+        .wallet-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 24px;
+            background: rgba(20, 20, 40, 0.9);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .wallet-logo {
+            font-size: 1.6rem;
+            font-weight: 800;
+            background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 0.5px;
+        }
+        
+        .connect-btn {
+            background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(106, 17, 203, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .connect-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: 0.5s;
+        }
+        
+        .connect-btn:hover::before {
+            left: 100%;
+        }
+        
+        .connect-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 7px 20px rgba(106, 17, 203, 0.6);
+        }
+        
+        .balance-section {
+            padding: 30px 24px;
+            text-align: center;
+            background: rgba(25, 25, 45, 0.9);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .balance-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(106, 17, 203, 0.1) 0%, transparent 70%);
+            animation: pulse 8s infinite linear;
+        }
+        
+        .balance {
+            font-size: 3rem;
+            font-weight: 800;
+            margin: 10px 0;
+            position: relative;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+        
+        .change {
+            color: var(--positive);
+            font-size: 1rem;
+            font-weight: 600;
+            position: relative;
+        }
+        
+        .change.negative {
+            color: var(--negative);
+        }
+        
+        .actions {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            padding: 20px;
+            gap: 12px;
+            background: rgba(20, 20, 40, 0.9);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .action-btn {
+            background: rgba(40, 40, 70, 0.8);
+            border: none;
+            color: white;
+            padding: 15px 8px;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .action-btn::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
+            transform: scaleX(0);
+            transition: transform 0.3s;
+        }
+        
+        .action-btn:hover::after {
+            transform: scaleX(1);
+        }
+        
+        .action-btn i {
+            font-size: 1.4rem;
+            transition: transform 0.3s;
+        }
+        
+        .action-btn:hover i {
+            transform: scale(1.2);
+        }
+        
+        .action-btn:hover {
+            background: var(--card-hover);
+            transform: translateY(-5px);
+        }
+        
+        .welcome-section {
+            padding: 35px 24px;
+            text-align: center;
+            background: rgba(25, 25, 45, 0.9);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .welcome-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, transparent 30%, rgba(106, 17, 203, 0.05) 50%, transparent 70%);
+            animation: shine 6s infinite linear;
+        }
+        
+        .welcome-title {
+            font-size: 2rem;
+            margin-bottom: 12px;
+            background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
+            letter-spacing: 1px;
+            position: relative;
+        }
+        
+        .welcome-subtitle {
+            font-size: 1.3rem;
+            opacity: 0.9;
+            font-weight: 600;
+            position: relative;
+        }
+        
+        .tokens-section {
+            padding: 20px;
+        }
+        
+        .token {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 18px;
+            background: rgba(35, 35, 60, 0.8);
+            border-radius: 16px;
+            margin-bottom: 15px;
+            transition: all 0.3s;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .token::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.03), transparent);
+            transition: 0.5s;
+        }
+        
+        .token:hover::before {
+            left: 100%;
+        }
+        
+        .token:hover {
+            background: var(--card-hover);
+            transform: translateX(8px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .token-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .token-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .token-icon.fallback {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .sol { background: linear-gradient(135deg, #9945FF, #14F195); }
+        .usdt { background: linear-gradient(135deg, #26A17B, #26A17B); }
+        .usdc { background: linear-gradient(135deg, #2775CA, #2775CA); }
+        .whider { background: linear-gradient(135deg, var(--primary), var(--secondary)); }
+        
+        .token-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .token-details {
+            text-align: right;
+        }
+        
+        .token-amount {
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+        
+        .token-value {
+            font-size: 0.95rem;
+            opacity: 0.8;
+            margin-top: 4px;
+        }
+        
+        .token-change {
+            font-size: 0.85rem;
+            margin-top: 5px;
+            font-weight: 600;
+        }
+        
+        .positive { color: var(--positive); }
+        .negative { color: var(--negative); }
+        .neutral { color: var(--neutral); }
+        
+        .navigation {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            padding: 18px 10px;
+            background: rgba(20, 20, 40, 0.9);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: var(--text-secondary);
+            padding: 10px 5px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.85rem;
+            position: relative;
+        }
+        
+        .nav-item i {
+            font-size: 1.3rem;
+            margin-bottom: 6px;
+            transition: all 0.3s;
+        }
+        
+        .nav-item.active {
+            color: white;
+            background: rgba(50, 50, 80, 0.6);
+        }
+        
+        .nav-item.active i {
+            transform: scale(1.1);
+        }
+        
+        .nav-item:hover {
+            color: white;
+            background: rgba(60, 60, 100, 0.6);
+        }
+        
+        .nav-item::after {
+            content: '';
+            position: absolute;
+            bottom: 5px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
+            transition: width 0.3s;
+        }
+        
+        .nav-item.active::after {
+            width: 20px;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(5px);
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        .modal-content {
+            background: var(--card-bg);
+            padding: 35px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 420px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            animation: slideUp 0.4s ease-out;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .modal-content::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
+        }
+        
+        .modal-icon {
+            font-size: 4.5rem;
+            margin-bottom: 25px;
+            color: var(--primary);
+            animation: bounce 1s infinite alternate;
+        }
+        
+        .modal-title {
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+        
+        .modal-text {
+            margin-bottom: 25px;
+            opacity: 0.9;
+            line-height: 1.5;
+        }
+        
+        .modal-btn {
+            background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            border: none;
+            padding: 14px 20px;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(106, 17, 203, 0.4);
+        }
+        
+        .modal-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 7px 20px rgba(106, 17, 203, 0.6);
+        }
+        
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideUp {
+            from { 
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes pulse {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @keyframes shine {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        
+        @keyframes bounce {
+            from { transform: translateY(0); }
+            to { transform: translateY(-10px); }
+        }
+        
+        /* Responsive */
+        @media (max-width: 480px) {
+            .wallet-container {
+                max-width: 100%;
+                border-radius: 20px;
+            }
+            
+            .balance {
+                font-size: 2.5rem;
+            }
+            
+            .welcome-title {
+                font-size: 1.7rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="wallet-container">
+        <div class="wallet-header">
+            <div class="wallet-logo">My Wallet</div>
+            <button class="connect-btn" id="connectBtn">CONNECT WALLET</button>
+        </div>
+        
+        <div class="balance-section">
+            <div class="balance" id="balanceTotal">$0.00</div>
+            <div class="change" id="balanceChange">0.00% Today</div>
+        </div>
+        
+        <div class="actions">
+            <button class="action-btn">
+                <i class="fas fa-paper-plane"></i>
+                <span>Kirim</span>
+            </button>
+            <button class="action-btn">
+                <i class="fas fa-download"></i>
+                <span>Terima</span>
+            </button>
+            <button class="action-btn">
+                <i class="fas fa-history"></i>
+                <span>Riwayat</span>
+            </button>
+            <button class="action-btn">
+                <i class="fas fa-ellipsis-h"></i>
+                <span>Lainnya</span>
+            </button>
+        </div>
+        
+        <div class="welcome-section">
+            <div class="welcome-title">WELCOME TO WHIDER</div>
+            <div class="welcome-subtitle">WALLET</div>
+        </div>
+        
+        <div class="tokens-section" id="tokensList">
+            <!-- Daftar token akan diisi oleh JavaScript -->
+        </div>
+        
+        <div class="navigation">
+            <div class="nav-item active">
+                <i class="fas fa-home"></i>
+                <span>Home</span>
+            </div>
+            <div class="nav-item">
+                <i class="fas fa-chart-line"></i>
+                <span>Markets</span>
+            </div>
+            <div class="nav-item">
+                <i class="fas fa-exchange-alt"></i>
+                <span>Trade</span>
+            </div>
+            <div class="nav-item">
+                <i class="fas fa-compass"></i>
+                <span>Discover</span>
+            </div>
+            <div class="nav-item">
+                <i class="fas fa-wallet"></i>
+                <span>Wallet</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Coming Soon -->
+    <div class="modal" id="comingSoonModal">
+        <div class="modal-content">
+            <div class="modal-icon">
+                <i class="fas fa-tools"></i>
+            </div>
+            <div class="modal-title">COMING SOON</div>
+            <div class="modal-text">Fitur wallet sedang dalam pengembangan. Nantikan update terbaru!</div>
+            <button class="modal-btn" id="closeModalBtn">Tutup</button>
+        </div>
+    </div>
+
+    <script>
+        // Data token dengan saldo 0
+        const tokens = [
+            { 
+                symbol: 'SOL', 
+                name: 'Solana', 
+                amount: 0, 
+                value: 192.91, 
+                change: 6.36, 
+                icon: 'sol',
+                logo: 'https://i.postimg.cc/63d2W2tW/5426.png'
+            },
+            { 
+                symbol: 'USDT', 
+                name: 'Tether', 
+                amount: 0, 
+                value: 1, 
+                change: 0.19, 
+                icon: 'usdt',
+                logo: 'https://i.postimg.cc/htp0nYMs/IMG-20251024-125826.png'
+            },
+            { 
+                symbol: 'USDC', 
+                name: 'USD Coin', 
+                amount: 0, 
+                value: 0.9995, 
+                change: 0, 
+                icon: 'usdc',
+                logo: 'https://i.postimg.cc/BnV1MfmJ/3408.png'
+            },
+            { 
+                symbol: 'WHIDER', 
+                name: 'Whider Token', 
+                amount: 0, 
+                value: 0.5, 
+                change: 0, 
+                icon: 'whider',
+                logo: 'https://i.postimg.cc/nznRcZZK/20251021-150427.jpg'
+            }
+        ];
+
+        // Elemen DOM
+        const connectBtn = document.getElementById('connectBtn');
+        const balanceTotal = document.getElementById('balanceTotal');
+        const balanceChange = document.getElementById('balanceChange');
+        const tokensList = document.getElementById('tokensList');
+        const comingSoonModal = document.getElementById('comingSoonModal');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+        const actionButtons = document.querySelectorAll('.action-btn');
+        const navItems = document.querySelectorAll('.nav-item');
+
+        // Inisialisasi
+        function init() {
+            renderTokens();
+            setupEventListeners();
+            updateBalance();
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // Tombol koneksi wallet
+            connectBtn.addEventListener('click', () => {
+                comingSoonModal.style.display = 'flex';
+            });
+
+            // Tombol tutup modal
+            closeModalBtn.addEventListener('click', () => {
+                comingSoonModal.style.display = 'none';
+            });
+
+            // Tombol aksi di wallet
+            actionButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    comingSoonModal.style.display = 'flex';
+                });
+            });
+
+            // Navigasi
+            navItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    navItems.forEach(nav => {
+                        nav.classList.remove('active');
+                    });
+                    this.classList.add('active');
+                    
+                    // Tampilkan coming soon untuk semua menu kecuali Home
+                    if (!this.querySelector('span').textContent.includes('Home')) {
+                        comingSoonModal.style.display = 'flex';
+                    }
+                });
+            });
+        }
+
+        // Render daftar token dengan fallback untuk logo
+        function renderTokens() {
+            tokensList.innerHTML = '';
+            
+            tokens.forEach(token => {
+                const tokenElement = document.createElement('div');
+                tokenElement.className = 'token';
+                
+                const changeClass = token.change > 0 ? 'positive' : token.change < 0 ? 'negative' : 'neutral';
+                const changeSymbol = token.change > 0 ? '+' : '';
+                
+                // Buat elemen icon dengan fallback
+                let tokenIconHTML;
+                if (token.logo) {
+                    tokenIconHTML = `
+                        <div class="token-icon ${token.icon}">
+                            <img src="${token.logo}" alt="${token.symbol}" onerror="this.style.display='none'; this.parentElement.classList.add('fallback'); this.parentElement.textContent='${token.symbol.charAt(0)}'">
+                        </div>
+                    `;
+                } else {
+                    tokenIconHTML = `<div class="token-icon ${token.icon} fallback">${token.symbol.charAt(0)}</div>`;
+                }
+                
+                tokenElement.innerHTML = `
+                    <div class="token-info">
+                        ${tokenIconHTML}
+                        <div>
+                            <div>${token.symbol}</div>
+                            <div class="token-change ${changeClass}">$${token.value} ${changeSymbol}${token.change}%</div>
+                        </div>
+                    </div>
+                    <div class="token-details">
+                        <div class="token-amount">${token.amount.toFixed(2)}</div>
+                        <div class="token-value">$${(token.amount * token.value).toFixed(2)}</div>
+                    </div>
+                `;
+                
+                tokensList.appendChild(tokenElement);
+            });
+        }
+
+        // Update total saldo
+        function updateBalance() {
+            const total = tokens.reduce((sum, token) => {
+                return sum + (token.amount * token.value);
+            }, 0);
+            
+            balanceTotal.textContent = `$${total.toFixed(2)}`;
+            
+            // Set perubahan hari ini menjadi 0.00%
+            balanceChange.textContent = `0.00% Today`;
+            balanceChange.className = 'change';
+        }
+
+        // Simulasi perubahan harga token (tanpa mengubah jumlah token)
+        function simulatePriceChanges() {
+            tokens.forEach(token => {
+                const randomChange = (Math.random() - 0.5) * 4;
+                token.value = token.value * (1 + randomChange / 100);
+                token.change = token.change + randomChange;
+            });
+            
+            renderTokens();
+        }
+
+        // Inisialisasi aplikasi
+        init();
+
+        // Jalankan simulasi perubahan harga setiap 10 detik
+        setInterval(simulatePriceChanges, 10000);
+
+        // Fungsi untuk integrasi dengan WHIDER
+        window.WHIDER_WALLET = {
+            // Fungsi untuk mendapatkan state wallet
+            getWalletState: function() {
+                return {
+                    balance: tokens.reduce((sum, token) => sum + (token.amount * token.value), 0),
+                    tokens: [...tokens]
+                };
+            },
+            
+            // Fungsi untuk menambahkan token baru
+            addToken: function(tokenData) {
+                if (tokenData && tokenData.symbol) {
+                    const existingToken = tokens.find(t => t.symbol === tokenData.symbol);
+                    if (!existingToken) {
+                        tokens.push({
+                            symbol: tokenData.symbol,
+                            name: tokenData.name || tokenData.symbol,
+                            amount: 0, // Selalu mulai dari 0
+                            value: tokenData.value || 0,
+                            change: tokenData.change || 0,
+                            icon: tokenData.icon || 'usdt',
+                            logo: tokenData.logo || null
+                        });
+                        renderTokens();
+                        updateBalance();
+                    }
+                }
+            },
+            
+            // Fungsi untuk update saldo
+            updateBalance: function(newBalance) {
+                if (newBalance && typeof newBalance === 'number') {
+                    balanceTotal.textContent = `$${newBalance.toFixed(2)}`;
+                }
+            },
+            
+            // Fungsi untuk reset saldo ke 0
+            resetBalances: function() {
+                tokens.forEach(token => {
+                    token.amount = 0;
+                });
+                updateBalance();
+                renderTokens();
+            }
+        };
+
+        console.log('WHIDER Wallet siap diintegrasikan! Saldo dimulai dari 0.');
+    </script>
+</body>
+</html>
